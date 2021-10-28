@@ -106,7 +106,7 @@ namespace FraudReporterAPI.Controllers.Tests
             {
                 // Act
                 var fraudService = new FraudService(context, mapper);
-                var items = fraudService.GetFrauds(new FraudPagination { Index = 10, Item = 10 });
+                var items = fraudService.GetFrauds(new FraudPagination { Index = 100, Item = 10 });
 
                 // Assert
                 Assert.AreEqual(0, items.Count);

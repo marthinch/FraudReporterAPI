@@ -11,8 +11,6 @@ using FraudReporterAPI.DTOs;
 using FraudReporterAPI.Enums;
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FraudReporterAPI.Controllers.Tests
 {
@@ -21,16 +19,9 @@ namespace FraudReporterAPI.Controllers.Tests
     {
         private DbContextOptionsBuilder<FraudReporterAPIContext> dbContextOptionsBuilder;
         private readonly IMapper mapper;
-        private readonly IDataProtector protector;
 
         public FraudsControllerTests()
         {
-            // Setup data protector
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddDataProtection();
-            var services = serviceCollection.BuildServiceProvider();
-            protector = services.GetDataProtector("Secure");
-
             // Setup db context builder
             dbContextOptionsBuilder = new DbContextOptionsBuilder<FraudReporterAPIContext>().UseInMemoryDatabase("FraudReporter")
                                                                                             .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
@@ -100,7 +91,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var items = fraudService.GetFrauds(new FraudPagination { Index = 0, Item = 10 });
 
                 // Assert
@@ -114,7 +105,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var items = fraudService.GetFrauds(new FraudPagination { Index = 10, Item = 10 });
 
                 // Assert
@@ -128,7 +119,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var item = fraudService.GetFraudDetail(1);
 
                 // Assert
@@ -142,7 +133,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var item = fraudService.GetFraudDetail(100);
 
                 // Assert
@@ -159,7 +150,7 @@ namespace FraudReporterAPI.Controllers.Tests
                 var newFraud = new FraudDTO { Category = 0, Phone = "xxx", Provider = "xxx", Message = "xxx", Status = 0 };
 
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.SaveFraud(newFraud);
 
                 // Assert
@@ -176,7 +167,7 @@ namespace FraudReporterAPI.Controllers.Tests
                 var updateFraud = new FraudDTO { Category = 0, Phone = "yyy", Provider = "yyy", Message = "update xxx", Status = 0 };
 
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.UpdateFraud(1, updateFraud);
 
                 // Assert
@@ -190,7 +181,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.DeleteFraud(2);
 
                 // Assert
@@ -204,7 +195,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.UpdateFraudStatus(3, FraudStatus.PendingReported);
 
                 // Assert
@@ -219,7 +210,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.UpdateFraudStatus(4, FraudStatus.Reported);
 
                 // Assert
@@ -234,7 +225,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.UpdateFraudStatus(5, FraudStatus.Cancel);
 
                 // Assert
@@ -249,7 +240,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.UpdateFraudStatus(40, FraudStatus.NotReported);
 
                 // Assert
@@ -264,7 +255,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.UpdateFraudStatus(40, FraudStatus.PendingReported);
 
                 // Assert
@@ -279,7 +270,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.UpdateFraudStatus(40, FraudStatus.Reported);
 
                 // Assert
@@ -293,7 +284,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.UpdateFraudStatus(11, FraudStatus.Reported);
 
                 // Assert
@@ -308,8 +299,8 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
-                var result = fraudService.UpdateFraudStatus(11, FraudStatus.NotReported);
+                var fraudService = new FraudService(context, mapper);
+                var result = fraudService.UpdateFraudStatus(12, FraudStatus.NotReported);
 
                 // Assert
                 // The result should throw exception based on the test method's attribute 
@@ -323,8 +314,8 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
-                var result = fraudService.UpdateFraudStatus(12, FraudStatus.Cancel);
+                var fraudService = new FraudService(context, mapper);
+                var result = fraudService.UpdateFraudStatus(13, FraudStatus.Cancel);
 
                 // Assert
                 // The result should throw exception based on the test method's attribute 
@@ -337,7 +328,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.CancelReport(30, FraudStatus.Cancel);
 
                 // Assert
@@ -352,7 +343,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.CancelReport(31, FraudStatus.NotReported);
 
                 // Assert
@@ -367,7 +358,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.CancelReport(31, FraudStatus.PendingReported);
 
                 // Assert
@@ -382,7 +373,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.CancelReport(31, FraudStatus.Reported);
 
                 // Assert
@@ -396,7 +387,7 @@ namespace FraudReporterAPI.Controllers.Tests
             using (var context = new FraudReporterAPIContext(dbContextOptionsBuilder.Options))
             {
                 // Act
-                var fraudService = new FraudService(context, mapper, protector);
+                var fraudService = new FraudService(context, mapper);
                 var result = fraudService.CancelReport(31, FraudStatus.Cancel);
 
                 // Assert

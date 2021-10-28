@@ -11,8 +11,7 @@ namespace FraudReporterAPI.Migrations
                 name: "Fraud",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<int>(type: "int", nullable: false).Annotation("SqlServer:Identity", "1, 1"),
                     Category = table.Column<int>(type: "int", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Provider = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -31,8 +30,7 @@ namespace FraudReporterAPI.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Fraud");
+            migrationBuilder.DropTable(name: "Fraud");
         }
     }
 }

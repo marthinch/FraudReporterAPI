@@ -5,7 +5,6 @@ using FraudReporterAPI.Enums;
 using FraudReporterAPI.Interfaces;
 using FraudReporterAPI.Models;
 using FraudReporterAPI.Paginations;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,16 +14,13 @@ namespace FraudReporterAPI.Services
 {
     public class FraudService : BaseService, IFraudService
     {
-        private readonly FraudReporterAPIContext context;
+        private FraudReporterAPIContext context;
         private readonly IMapper mapper;
-        private readonly IDataProtector protector;
 
-        public FraudService(FraudReporterAPIContext context, IMapper mapper, IDataProtectionProvider provider)
+        public FraudService(FraudReporterAPIContext context, IMapper mapper)
         {
             this.context = context;
             this.mapper = mapper;
-
-            protector = provider.CreateProtector("Secure");
         }
 
         public bool DeleteFraud(int id)
@@ -74,10 +70,6 @@ namespace FraudReporterAPI.Services
                 }
 
                 mappedData = mapper.Map<FraudDetailDTO>(fraud);
-
-                mappedData.Phone = protector.Unprotect(fraud.Phone);
-                mappedData.Provider = protector.Unprotect(fraud.Provider);
-                mappedData.Message = protector.Unprotect(fraud.Message);
             }
             catch (Exception exception)
             {
@@ -103,11 +95,6 @@ namespace FraudReporterAPI.Services
                 var listFraud = items.Skip(pagination.Index * pagination.Item).Take(pagination.Item).ToList();
 
                 mappedData = mapper.Map<List<FraudListDTO>>(listFraud);
-
-                foreach (var item in mappedData)
-                {
-                    item.Phone = protector.Unprotect(item.Phone);
-                }
             }
             catch (Exception exception)
             {
@@ -123,16 +110,28 @@ namespace FraudReporterAPI.Services
 
             var mappedData = mapper.Map<Fraud>(fraud);
 
-            mappedData.Phone = protector.Protect(mappedData.Phone);
-            mappedData.Provider = protector.Protect(mappedData.Provider);
-            mappedData.Message = protector.Protect(mappedData.Message);
-
             using (context)
             {
                 try
                 {
                     context.Database.BeginTransaction();
-                    context.Fraud.Add(mappedData);
+
+                    context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+                    List<Fraud> frauds = new List<Fraud>();
+                    for (int i = 0; i < 10000; i++)
+                    {
+                        var newData = new Fraud();
+                        newData.Phone = "Phone " + i;
+                        newData.Provider = "Provider " + i;
+                        newData.Message = "Message " + i;
+                        frauds.Add(newData);
+                    }
+
+                    context.ChangeTracker.AutoDetectChangesEnabled = true;
+
+                    //context.Fraud.Add(mappedData);
+                    context.Fraud.AddRange(frauds);
                     context.SaveChanges();
                     context.Database.CommitTransaction();
 
@@ -154,11 +153,7 @@ namespace FraudReporterAPI.Services
             bool isUpdated = false;
 
             var mappedData = mapper.Map<Fraud>(fraud);
-
             mappedData.Id = id;
-            mappedData.Phone = protector.Protect(mappedData.Phone);
-            mappedData.Provider = protector.Protect(mappedData.Provider);
-            mappedData.Message = protector.Protect(mappedData.Message);
 
             using (context)
             {
